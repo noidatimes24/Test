@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1100, initial-scale=1.0, user-scalable=no">
+<title>NoidaTimes24</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyAj1P1R3qemEfrB3gbo8IhMXte4v2zo52E",
+    authDomain: "noidatimes24-519b4.firebaseapp.com",
+    projectId: "noidatimes24-519b4",
+    storageBucket: "noidatimes24-519b4.firebasestorage.app",
+    messagingSenderId: "877542574777",
+    appId: "1:877542574777:web:3a94e5d5720a0bee2e2968"
+  });
+  const db = getFirestore(app);
+
+  window._saveArticle = async (data) => {
+    await addDoc(collection(db, "articles"), { ...data, createdAt: serverTimestamp() });
+  };
+
+  const q = query(collection(db, "articles"), orderBy("createdAt", "asc"));
+  onSnapshot(q, (snap) => {
+    const arts = [];
+    snap.forEach(d => arts.push({ id: d.id, ...d.data() }));
+    window._renderArticles(arts);
+    document.getElementById('db-status').textContent = '● LIVE';
+    document.getElementById('db-status').style.color = '#27ae60';
+    document.getElementById('article-count').textContent = arts.length;
+  }, (err) => {
+    document.getElementById('db-status').textContent = '● Rules Not Set';
+    document.getElementById('db-status').style.color = '#c0392b';
+  });
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a1a;--accent:#c0392b;--muted:#6b6b6b;
+  --paper:#faf8f4;--gap:14px;
+}
+html{height:100%;}
+body{
+  background:#111;
+  font-family:'Libre Baskerville',Georgia,serif;
+  color:var(--ink);
+  width:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  display:block;
+}
+
+/* ── SCALE WRAPPER: fills exactly the viewport ── */
+#root{
+  width:1060px;
+  transform-origin:top left;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:6px;
+  height:auto;
+}
+
+/* ── PAPER ── */
+.paper{
+  background:var(--paper);
+  width:100%;
+  padding:16px 30px 18px;
+  box-shadow:0 2px 20px rgba(0,0,0,.5);
+}
+
+/* NAMEPLATE */
+.nameplate{
+  text-align:center;
+  border-top:3px solid var(--ink);
+  border-bottom:3px solid var(--ink);
+  padding:3px 0 4px;
+}
+.nameplate::before,.nameplate::after{
+  content:'';display:block;
+  border-top:1px solid var(--ink);margin:2px 0;
+}
+.paper-title{
+  font-family:'Playfair Display',serif;
+  font-size:2.6rem;font-weight:900;
+  text-transform:uppercase;line-height:1;
+}
+.tagline{
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.52rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted);
+  margin-top:1px;
+}
+
+/* META */
+.meta{
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.6rem;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);border-bottom:1px solid #bbb;
+  padding:3px 0 2px;margin-bottom:10px;
+}
+.live-pill{background:var(--accent);color:#fff;padding:1px 7px;font-weight:700;}
+
+/* GRID */
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
+.col-l{
+  grid-column:1/3;padding-right:var(--gap);
+  border-right:1px solid #ccc;margin-right:var(--gap);
+}
+.col-r{grid-column:3/4;}
+.col-a{padding-right:var(--gap);border-right:1px solid #ccc;margin-right:var(--gap);}
+.col-b{padding-right:var(--gap);border-right:1px solid #ccc;margin-right:var(--gap);}
+.col-c{}
+.divider{grid-column:1/-1;border-top:1px solid #ccc;margin:8px 0;}
+
+/* STORY ELEMENTS */
+.kicker{
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.55rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:2px;
+}
+.section-lbl{
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.55rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);border-bottom:2px solid var(--accent);
+  padding-bottom:1px;margin-bottom:6px;display:inline-block;
+}
+.hl{font-family:'Playfair Display',serif;font-weight:700;line-height:1.15;margin-bottom:3px;}
+.hl-xl{font-size:1.5rem;}
+.hl-lg{font-size:1.15rem;}
+.hl-sm{font-size:.82rem;}
+.deck{
+  font-family:'Libre Baskerville',serif;font-style:italic;
+  font-size:.68rem;color:var(--muted);line-height:1.4;
+  border-left:3px solid var(--accent);padding-left:6px;margin-bottom:4px;
+}
+.byline{
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.55rem;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:4px;
+}
+.body{
+  font-family:'Libre Baskerville',serif;
+  font-size:.68rem;line-height:1.6;
+  text-align:justify;hyphens:auto;
+}
+.body p+p{margin-top:.4em;}
+.drop::first-letter{
+  font-family:'Playfair Display',serif;
+  font-size:3em;font-weight:900;
+  float:left;line-height:.82;margin:.04em .04em 0 0;
+}
+.pq{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:.85rem;font-weight:700;color:var(--accent);
+  border-top:2px solid var(--accent);border-bottom:2px solid var(--accent);
+  padding:4px 0;margin:6px 0;text-align:center;line-height:1.25;
+}
+.simg{
+  width:100%;aspect-ratio:16/9;object-fit:cover;
+  display:block;margin-bottom:4px;filter:grayscale(10%);
+}
+.caption{
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.55rem;color:var(--muted);margin-bottom:4px;
+}
+
+/* FOOTER */
+.footer{
+  border-top:3px double var(--ink);margin-top:10px;padding-top:4px;
+  display:flex;justify-content:space-between;
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.52rem;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);
+}
+
+/* LIVE ARTICLES BOX */
+.live-box{
+  background:var(--paper);width:100%;
+  padding:14px 30px 18px;
+  box-shadow:0 2px 20px rgba(0,0,0,.5);
+}
+.live-header{
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:4px;margin-bottom:10px;
+}
+.live-title{
+  font-family:'Playfair Display',serif;
+  font-size:.9rem;font-weight:900;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.live-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--accent);color:#fff;
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.52rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 7px;
+}
+.dot{width:5px;height:5px;border-radius:50%;background:#fff;animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.empty{
+  grid-column:1/-1;text-align:center;padding:14px;
+  font-family:'Source Sans 3',sans-serif;font-size:.68rem;color:var(--muted);
+}
+.empty strong{
+  display:block;font-family:'Playfair Display',serif;
+  font-size:.9rem;margin-bottom:3px;color:var(--ink);
+}
+
+/* FORM PANEL */
+.form-panel{
+  background:#fff;width:100%;
+  border-top:4px solid var(--accent);
+  padding:12px 30px 14px;
+  box-shadow:0 2px 20px rgba(0,0,0,.5);
+  font-family:'Source Sans 3',sans-serif;
+}
+.form-title{
+  font-family:'Playfair Display',serif;
+  font-size:.88rem;font-weight:700;
+  border-bottom:1px solid #ddd;
+  padding-bottom:4px;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.badge{
+  font-size:.5rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--accent);
+  color:#fff;padding:2px 5px;border-radius:2px;
+}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px;}
+.fg{display:flex;flex-direction:column;gap:2px;}
+.fg.full{grid-column:1/-1;}
+label{font-size:.55rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+input,textarea{
+  border:1px solid #ddd;padding:5px 8px;
+  font-family:'Libre Baskerville',serif;
+  font-size:.68rem;color:var(--ink);
+  background:var(--paper);outline:none;
+  transition:border-color .2s;width:100%;
+}
+input:focus,textarea:focus{border-color:var(--accent);}
+textarea{resize:none;height:52px;}
+.btns{display:flex;gap:6px;justify-content:flex-end;margin-top:5px;}
+.btn{
+  font-family:'Source Sans 3',sans-serif;
+  font-size:.6rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 14px;cursor:pointer;border:1px solid var(--ink);
+  transition:all .15s;
+}
+.btn-p{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-p:hover{background:#a93226;}
+.btn-s{background:transparent;color:var(--ink);}
+.btn-s:hover{background:var(--ink);color:#fff;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.status{
+  font-size:.6rem;color:#27ae60;font-weight:600;
+  text-align:center;min-height:14px;margin-top:4px;
+}
+@keyframes dot{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.dots span{animation:dot 1.4s infinite both;}
+.dots span:nth-child(2){animation-delay:.2s;}
+.dots span:nth-child(3){animation-delay:.4s;}
+</style>
+</head>
+<body>
+<div id="root">
+
+  <!-- FRONT PAGE -->
+  <div class="paper">
+    <div class="nameplate">
+      <div class="paper-title">NoidaTimes24</div>
+      <div class="tagline">Noida's Most Trusted News Source · Live &amp; Always Updated</div>
+    </div>
+    <div class="meta">
+      <span class="live-pill">LIVE</span>
+      <span id="today-date"></span>
+      <span id="db-status" style="font-weight:700">● Connecting…</span>
+    </div>
+
+    <div class="grid3">
+      <!-- LEAD -->
+      <div class="col-l">
+        <div class="section-lbl">Top Story</div>
+        <img class="simg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Noida_skyline.jpg/1280px-Noida_skyline.jpg" onerror="this.style.display='none'" alt="">
+        <div class="caption">Noida City Skyline — NoidaTimes24 Archive</div>
+        <div class="kicker">Breaking News</div>
+        <h2 class="hl hl-xl">NoidaTimes24 Is Live — Every Article Saved &amp; Visible To All Readers</h2>
+        <div class="deck">Publish once, seen by everyone — instantly, permanently, in real time.</div>
+        <div class="byline">By The Editorial Team · NoidaTimes24</div>
+        <div class="body drop">
+          <p>Welcome to NoidaTimes24. Every article you publish below is saved to Firebase and instantly visible to all readers — anywhere, any time. No refresh needed.</p>
+          <div class="pq">"The news never sleeps — and neither does NoidaTimes24."</div>
+          <p>Use the form at the bottom. Fill headline, section, byline, and body. Hit Publish. The AI formats it into full newspaper style and saves it to the cloud.</p>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="col-r">
+        <div class="section-lbl">About</div>
+        <div class="kicker">Our Mission</div>
+        <h2 class="hl hl-lg">Noida's Stories, Every Hour, On Every Screen</h2>
+        <div class="byline">Editorial · Today</div>
+        <div class="body">
+          <p>NoidaTimes24 covers breaking news, politics, culture, and civic life across Noida and NCR. Fast. Accurate. Live.</p>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="section-lbl">Published</div>
+          <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--accent);line-height:1;" id="article-count">0</div>
+          <div style="font-family:'Source Sans 3',sans-serif;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);">Articles Live</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- BOTTOM 3 -->
+      <div class="col-a">
+        <div class="section-lbl">How It Works</div>
+        <h3 class="hl hl-sm">Fill Form → AI Formats → Goes Live For All</h3>
+        <div class="byline">Tech Desk</div>
+        <div class="body"><p>Type your article. Hit Publish. AI formats it into NYT style — drop caps, pull quotes, deck — then saves to Firebase so all visitors see it instantly.</p></div>
+      </div>
+      <div class="col-b">
+        <div class="section-lbl">Storage</div>
+        <h3 class="hl hl-sm">Saved Permanently In Firebase Cloud</h3>
+        <div class="byline">Data Desk</div>
+        <div class="body"><p>Every article is stored in Firestore under the "articles" collection. Data persists forever — reopen the page and all articles are still there.</p></div>
+      </div>
+      <div class="col-c">
+        <div class="section-lbl">Readers</div>
+        <h3 class="hl hl-sm">Share The File — Anyone Sees All Articles Live</h3>
+        <div class="byline">Digital Desk</div>
+        <div class="body"><p>Share this HTML file or host it on any server. Every reader connects to the same Firebase and sees the same live articles in real time.</p></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>NoidaTimes24 · Noida, Uttar Pradesh · Est. 2024</span>
+      <span id="footer-date"></span>
+    </div>
+  </div>
+
+  <!-- LIVE ARTICLES -->
+  <div class="live-box">
+    <div class="live-header">
+      <span class="live-title">Latest Articles</span>
+      <span class="live-badge"><span class="dot"></span>Live</span>
+    </div>
+    <div class="grid3" id="articles-grid">
+      <div class="empty"><strong>No Articles Yet</strong>Use the form below to publish your first article.</div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-panel">
+    <div class="form-title">✦ Publish New Article <span class="badge">AI + Firebase</span></div>
+    <div class="row2">
+      <div class="fg"><label>Section / Kicker</label><input id="f-kicker" placeholder="e.g. Breaking News, Politics"></div>
+      <div class="fg"><label>Byline</label><input id="f-byline" placeholder="e.g. By Rahul Sharma · Reporter"></div>
+    </div>
+    <div class="row2">
+      <div class="fg full"><label>Headline</label><input id="f-headline" placeholder="Write a compelling headline..."></div>
+    </div>
+    <div class="row2">
+      <div class="fg full"><label>Article Body</label><textarea id="f-body" placeholder="Type or paste your article. AI will format it into newspaper style automatically..."></textarea></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Image URL (optional)</label><input id="f-img" placeholder="https://..."></div>
+      <div class="fg"><label>Image Caption (optional)</label><input id="f-caption" placeholder="Photo credit..."></div>
+    </div>
+    <div class="btns">
+      <button class="btn btn-s" onclick="clearForm()">Clear</button>
+      <button class="btn btn-p" id="pub-btn" onclick="publishArticle()">✦ Publish to NoidaTimes24</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+</div>
+
+<script>
+// DATE
+const d = new Date();
+document.getElementById('today-date').textContent =
+  d.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+document.getElementById('footer-date').textContent = d.toLocaleDateString('en-IN');
+
+// FIT — scale #root to viewport width, let body scroll naturally
+function fit() {
+  const root = document.getElementById('root');
+  const scale = window.innerWidth / 1060;
+  root.style.transform = `scale(${scale})`;
+  root.style.transformOrigin = 'top left';
+  // Tell body how tall the scaled content actually is so scroll works
+  document.body.style.height = (root.scrollHeight * scale) + 'px';
+}
+fit();
+window.addEventListener('resize', fit);
+
+// Block pinch
+document.addEventListener('touchmove', e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+document.addEventListener('gesturestart', e=>e.preventDefault(),{passive:false});
+
+// Clear
+function clearForm(){
+  ['f-kicker','f-headline','f-byline','f-body','f-img','f-caption'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('status').textContent='';
+}
+
+// Publish
+async function publishArticle(){
+  const headline = document.getElementById('f-headline').value.trim();
+  const body     = document.getElementById('f-body').value.trim();
+  const kicker   = document.getElementById('f-kicker').value.trim()||'News';
+  const byline   = document.getElementById('f-byline').value.trim()||'Staff Reporter';
+  const imgUrl   = document.getElementById('f-img').value.trim();
+  const caption  = document.getElementById('f-caption').value.trim();
+
+  if(!headline||!body){setSt('Please enter a headline and body.',true);return;}
+
+  const btn=document.getElementById('pub-btn');
+  btn.disabled=true;
+  setSt('<span class="dots">AI formatting<span>.</span><span>.</span><span>.</span></span>');
+
+  let article;
+  try{
+    article = await aiFormat(headline,body,kicker,byline);
+  }catch(e){
+    article = {
+      headline,kicker,byline,deck:'',
+      bodyHtml:`<p class="drop">${body.replace(/\n\n/g,'</p><p>').replace(/\n/g,' ')}</p>`
+    };
+  }
+
+  try{
+    setSt('<span class="dots">Saving<span>.</span><span>.</span><span>.</span></span>');
+    await window._saveArticle({...article,imgUrl,caption});
+    clearForm();
+    setSt('✦ Published! Live for all readers now.');
+    setTimeout(()=>{document.getElementById('status').textContent='';},4000);
+  }catch(e){
+    setSt('Firebase error — set Firestore security rules to allow read/write.',true);
+  }
+  btn.disabled=false;
+}
+
+// AI Format
+async function aiFormat(headline,body,kicker,byline){
+  const res = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      messages:[{role:'user',content:`You are a copy editor for NoidaTimes24, a Noida India newspaper. Format this article for print.
+
+Return ONLY a JSON object, no markdown, no backticks:
+{"headline":"max 12 words title case","kicker":"1-3 words ALL CAPS","byline":"By Name · Title","deck":"one sentence max 20 words","bodyHtml":"HTML with first <p class=\\"drop\\"> then <div class=\\"pq\\">pull quote</div> then more <p> tags"}
+
+HEADLINE:${headline}
+BYLINE:${byline}
+KICKER:${kicker}
+BODY:${body}`}]
+    })
+  });
+  const data=await res.json();
+  const text=data.content.map(b=>b.text||'').join('');
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
+}
+
+// Render articles from Firebase
+window._renderArticles = function(articles){
+  const grid=document.getElementById('articles-grid');
+  if(articles.length===0){
+    grid.innerHTML='<div class="empty"><strong>No Articles Yet</strong>Use the form below to publish your first article.</div>';
+    return;
+  }
+  grid.innerHTML='';
+  articles.forEach((a,i)=>{
+    if(i>0&&i%3===0){
+      const hr=document.createElement('div');
+      hr.className='divider';
+      grid.appendChild(hr);
+    }
+    const t = a.createdAt?.toDate
+      ? a.createdAt.toDate().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' · '+
+        a.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short'})
+      : 'Just now';
+    const el=document.createElement('div');
+    const isLast=(i+1)%3===0||i===articles.length-1;
+    el.style.cssText=isLast
+      ?'padding:0;'
+      :'padding-right:14px;border-right:1px solid #ccc;margin-right:0;';
+    el.innerHTML=`
+      ${a.imgUrl?`<img class="simg" style="aspect-ratio:4/3" src="${esc(a.imgUrl)}" onerror="this.style.display='none'" alt="">`:'' }
+      ${a.imgUrl&&a.caption?`<div class="caption">${esc(a.caption)}</div>`:''}
+      <div class="kicker">${esc(a.kicker||'News')}</div>
+      <h2 class="hl hl-sm" style="font-size:.92rem;margin-bottom:3px">${esc(a.headline)}</h2>
+      ${a.deck?`<div class="deck">${esc(a.deck)}</div>`:''}
+      <div class="byline">${esc(a.byline||'Staff Reporter')} · <em>${t}</em></div>
+      <div class="body">${a.bodyHtml||`<p class="drop">${esc(a.body||'')}</p>`}</div>
+    `;
+    grid.appendChild(el);
+  });
+  // Recalculate body height after articles render
+  setTimeout(fit, 50);
+};
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setSt(h,err){const s=document.getElementById('status');s.innerHTML=h;s.style.color=err?'#c0392b':'#27ae60';}
+</script>
+</body>
+</html>
